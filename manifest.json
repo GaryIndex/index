@@ -1,6 +1,6 @@
 {
   "name": "碎片率计算器",
-  "short_name": "计算器",
+  "short_name": "碎片率计算器",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#ffffff",
