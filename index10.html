@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+  <meta name="theme-color" content="#EDEDED">
+  <title>碎片率计算器</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background-color: #EDEDED;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 400px;
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      margin: 40px auto;
+      box-sizing: border-box;
+    }
+
+    h1 {
+      font-size: 20px;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .input-group {
+      margin-bottom: 20px;
+      position: relative; /* 为了放置清除按钮 */
+    }
+
+    label {
+      display: block;
+      font-size: 16px;
+      margin-bottom: 5px;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 10px 40px 10px 10px; /* 为右侧按钮预留空间 */
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-sizing: border-box;
+    }
+
+    /* 清除按钮容器 */
+    .clear-container {
+      position: absolute;
+      right: 10px; /* 靠右 */
+      top: 50%; /* 垂直居中 */
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column; /* 竖直方向排列 */
+      align-items: center; /* 居中对齐 */
+      cursor: pointer;
+    }
+
+    /* 上方的清除文字 */
+    .clear-text {
+      font-size: 10px;
+      color: #666;
+      margin-bottom: 2px; /* 距离按钮的间距 */
+    }
+
+    /* 清除按钮 */
+    .clear-button {
+      width: 20px;
+      height: 20px;
+      background-color: #f5f5f5;
+      border: 1px solid #ccc;
+      border-radius: 50%;
+      font-size: 12px;
+      font-weight: bold;
+      line-height: 18px;
+      text-align: center;
+      color: #666;
+      transition: background-color 0.2s;
+    }
+
+    .clear-button:hover {
+      background-color: #e0e0e0;
+    }
+
+    .radio-group {
+      margin-bottom: 20px;
+    }
+
+    .radio-group label {
+      font-size: 16px;
+      margin-right: 10px;
+    }
+
+    .result {
+      font-size: 14px;
+      font-weight: bold;
+      color: #333;
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .button {
+      display: block;
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      font-weight: bold;
+      color: #fff;
+      background-color: #007aff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: background-color 0.2s;
+    }
+
+    .button:active {
+      background-color: #0051a8;
+    }
+
+    footer {
+      background-color: #EDEDED;
+      padding-bottom: 20px;
+      text-align: center;
+      font-size: 10px;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>碎片率计算器</h1>
+    <div class="input-group">
+      <label for="machine-id">机台号</label>
+      <input type="text" id="machine-id" placeholder="请输入机台号" oninput="filterNumberInput(this)">
+      <div class="clear-container" onclick="clearInput('machine-id')">
+        <span class="clear-text">清除</span>
+        <div class="clear-button">×</div>
+      </div>
+    </div>
+    <div class="radio-group" onchange="updateSummary()">
+      <label><input type="radio" name="machine-type" value="双拼" checked> 双拼</label>
+      <label><input type="radio" name="machine-type" value="单拼"> 单拼</label>
+    </div>
+    <div class="input-group">
+      <label for="machine">机跑数</label>
+      <input type="text" id="machine" placeholder="请输入机跑数" oninput="filterNumberInput(this)">
+      <div class="clear-container" onclick="clearInput('machine')">
+        <span class="clear-text">清除</span>
+        <div class="clear-button">×</div>
+      </div>
+    </div>
+    <div class="input-group">
+      <label for="qualified">合格数</label>
+      <input type="text" id="qualified" placeholder="请输入合格数" oninput="filterNumberInput(this)">
+      <div class="clear-container" onclick="clearInput('qualified')">
+        <span class="clear-text">清除</span>
+        <div class="clear-button">×</div>
+      </div>
+    </div>
+    <div class="input-group">
+      <label for="discard">剔除碎</label>
+      <input type="text" id="discard" placeholder="请输入剔除碎" oninput="filterNumberInput(this)">
+      <div class="clear-container" onclick="clearInput('discard')">
+        <span class="clear-text">清除</span>
+        <div class="clear-button">×</div>
+      </div>
+    </div>
+    <div class="result" id="summary">总结：-</div>
+    <button class="button" onclick="copySummary()">复制总结</button>
+  </div>
+
+  <footer>
+    <p>© 2025 Jasper Comes from GitHub </p>
+  </footer>
+
+  <script>
+    function filterNumberInput(input) {
+      input.value = input.value.replace(/[^0-9]/g, '');
+      updateSummary();
+    }
+
+    function clearInput(inputId) {
+      const input = document.getElementById(inputId);
+      input.value = '';
+      updateSummary();
+    }
+
+    function updateSummary() {
+      const machineId = document.getElementById("machine-id").value;
+      const machineType = document.querySelector('input[name="machine-type"]:checked').value;
+      const machine = parseInt(document.getElementById("machine").value) || 0;
+      const qualified = parseInt(document.getElementById("qualified").value) || 0;
+      const discard = parseInt(document.getElementById("discard").value) || 0;
+
+      let summary = "总结：";
+      if (!machineId || machine <= 0) {
+        document.getElementById("summary").innerText = summary + "-";
+        return;
+      }
+
+      let fragmentCount = 0;
+      let fragmentRate = "";
+      let resultType = "";
+
+      if (qualified > machine) { 
+        const missingPieces = qualified - machine + discard;
+        fragmentCount = missingPieces;
+        fragmentRate = ((fragmentCount / machine) * 100).toFixed(2) + "%";
+        resultType = `少片${fragmentCount} 剔除碎片${discard} 碎片率${fragmentRate}`;
+      } else { 
+        const extraPieces = machine - qualified - discard;
+        if (extraPieces < 0) {
+          fragmentCount = Math.abs(extraPieces);
+          fragmentRate = ((fragmentCount / machine) * 100).toFixed(2) + "%";
+          resultType = `少片${fragmentCount} 剔除碎片${discard} 碎片率${fragmentRate}`;
+        } else {
+          fragmentCount = extraPieces;
+          resultType = `多片${fragmentCount}`;
+        }
+      }
+
+      summary += `${machineId} ${resultType} ${machineType}`;
+      document.getElementById("summary").innerText = summary;
+    }
+
+    function copySummary() {
+      const summaryText = document.getElementById("summary").innerText.replace("总结：", "").trim();
+      if (summaryText === "-") {
+        alert("暂无数据可复制！");
+        return;
+      }
+
+      navigator.clipboard.writeText(summaryText).then(() => {
+        alert("总结已复制！");
+      }).catch(() => {
+        alert("复制失败，请手动复制！");
+      });
+    }
+  </script>
+</body>
+</html>
