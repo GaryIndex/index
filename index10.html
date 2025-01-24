@@ -42,26 +42,25 @@
       margin-bottom: 5px;
     }
 
-    input[type="text"] {
-      width: 100%;
-      padding: 10px 40px 10px 10px; /* 为右侧按钮预留空间 */
-      font-size: 16px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      box-sizing: border-box;
-    }
+    .input-group {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
 
-    /* 清除按钮容器 */
-    .clear-container {
-      position: absolute;
-      right: 10px; /* 靠右 */
-      top: 50%; /* 垂直居中 */
-      transform: translateY(-50%);
-      display: flex;
-      flex-direction: column; /* 竖直方向排列 */
-      align-items: center; /* 居中对齐 */
-      cursor: pointer;
-    }
+input[type="text"] {
+  flex: 1;
+  padding-right: 40px; /* 为按钮预留空间 */
+}
+
+.clear-container {
+  position: absolute;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%; /* 按父元素高度居中 */
+}
 
     /* 上方的清除文字 */
     .clear-text {
