@@ -5,7 +5,7 @@ const OFFLINE_PAGE = './index.html'; // 离线页面
 
 // 需要预缓存的资源列表
 const PRECACHE_URLS = [
-  './index.html',      // 主页面
+  'index.html',      // 主页面
   './manifest.json',   // PWA 配置文件
   './icon.png',        // 图标文件
   './icon-512.png',    // 高分辨率图标
