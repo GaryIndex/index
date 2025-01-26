@@ -1,6 +1,6 @@
 const CACHE_NAME = 'app-cache-v1';
 const CACHE_EXPIRY_TIME = 3 * 24 * 60 * 60 * 1000; // 3天（毫秒）
-const OFFLINE_PAGE = './index.html'; // 离线时加载的页面
+const OFFLINE_PAGE = 'index.html'; // 离线时加载的页面
 
 // 安装事件：缓存必要的文件
 self.addEventListener('install', (event) => {
