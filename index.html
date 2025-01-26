@@ -195,20 +195,28 @@
       });
     }
   </script>
-  <script>
-  if (!localStorage.getItem('lastVisitTime')) {
-    // 如果没有存储访问时间，表示是第一次访问或首次添加到主屏幕
-    localStorage.setItem('lastVisitTime', new Date().getTime()); // 存储当前时间戳
-  }
-
-  // 注册 Service Worker
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/service-worker.js').then(function(registration) {
-      console.log('Service Worker注册成功:', registration);
-    }).catch(function(error) {
-      console.log('Service Worker注册失败:', error);
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js').then((registration) => {
+      console.log('Service Worker 注册成功:', registration);
+
+      // 检查 Service Worker 是否已经激活且缓存完成
+      registration.active?.postMessage({ type: 'CACHE_READY' });
+
+      // 确保缓存完成后再加载主内容
+      navigator.serviceWorker.ready.then(() => {
+        console.log('缓存已准备，加载网页内容...');
+        document.body.style.display = 'block'; // 显示网页内容
+      });
+    }).catch((error) => {
+      console.error('Service Worker 注册失败:', error);
+      // 如果失败，直接显示网页内容
+      document.body.style.display = 'block';
     });
-  }
-</script>
+  });
+
+  // 隐藏内容，直到缓存完成
+  document.body.style.display = 'none';
+}
 </body>
 </html>
