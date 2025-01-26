@@ -1,6 +1,6 @@
 {
   "name": "碎片率计算器",
-  "short_name": "碎片率计算器",
+  "short_name": "碎片率计算器1.1",
   "description": "一个用来计算碎片率的工具",
   "start_url": "./index.html", 
   "display": "standalone",
