@@ -77,11 +77,14 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       caches.match(request).then((cachedResponse) => {
         if (cachedResponse) {
-          // 如果缓存存在，异步检查是否过期
-          isCacheExpired().then((expired) => {
-            if (expired) fetchAndUpdateCache(request); // 如果过期，后台更新缓存
+          // 如果缓存存在，检查缓存是否过期
+          return isCacheExpired().then((expired) => {
+            if (expired) {
+              // 如果过期，后台更新缓存
+              fetchAndUpdateCache(request);
+            }
+            return cachedResponse; // 返回缓存内容
           });
-          return cachedResponse; // 直接返回缓存内容
         }
         // 如果缓存中没有，尝试从网络获取
         return fetchAndUpdateCache(request).catch(() => {
