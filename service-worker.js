@@ -1,16 +1,16 @@
 const CACHE_NAME = 'app-cache-v1';
 const CACHE_EXPIRY_TIME = 3 * 24 * 60 * 60 * 1000; // 3天（毫秒）
-const OFFLINE_PAGE = 'index.html'; // 离线时加载的页面
+const OFFLINE_PAGE = './index.html'; // 离线时加载的页面
 
 // 安装事件：缓存必要的文件
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll([
-        'index.html',      // 缓存主页面
-        'manifest.json',   // 缓存 manifest 文件
-        'icon.png',        // 缓存图标
-        'icon-512.png'     // 缓存高分辨率图标
+        './index.html',      // 缓存主页面
+        './manifest.json',   // 缓存 manifest 文件
+        './icon.png',        // 缓存图标
+        './icon-512.png'     // 缓存高分辨率图标
       ]);
     })
   );
