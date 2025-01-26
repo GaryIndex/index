@@ -1,36 +1,30 @@
 const CACHE_NAME = 'app-cache-v1';
-const CACHE_FILES = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/path/to/your/icon.png',
-  '/path/to/your/icon-512.png',
-];
-  
+const CACHE_EXPIRY_TIME = 3 * 24 * 60 * 60 * 1000; // 3天（毫秒）
+const OFFLINE_PAGE = 'index.html'; // 离线时加载的页面
+
+// 安装事件：缓存必要的文件
 self.addEventListener('install', (event) => {
-  // 在安装阶段完成缓存
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log('开始缓存文件...');
-      return cache.addAll(CACHE_FILES);
-    }).then(() => {
-      console.log('缓存成功，跳过等待...');
-      self.skipWaiting(); // 立即激活新的 Service Worker
-    }).catch((err) => {
-      console.error('缓存失败:', err);
+      return cache.addAll([
+        'index.html',      // 缓存主页面
+        'manifest.json',   // 缓存 manifest 文件
+        'icon.png',        // 缓存图标
+        'icon-512.png'     // 缓存高分辨率图标
+      ]);
     })
   );
 });
 
+// 激活事件：清理过期的缓存
 self.addEventListener('activate', (event) => {
-  console.log('Service Worker 激活');
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
-        cacheNames.map((cache) => {
-          if (cache !== CACHE_NAME) {
-            console.log('清理旧缓存:', cache);
-            return caches.delete(cache);
+        cacheNames.map((cacheName) => {
+          if (cacheName !== CACHE_NAME) {
+            console.log('清理旧缓存:', cacheName);
+            return caches.delete(cacheName);
           }
         })
       );
@@ -38,11 +32,15 @@ self.addEventListener('activate', (event) => {
   );
 });
 
+// 拦截网络请求
 self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
-      // 优先使用缓存，若没有则发起网络请求
-      return cachedResponse || fetch(event.request);
+      // 如果有缓存，返回缓存；否则请求网络
+      return cachedResponse || fetch(event.request).catch(() => {
+        // 如果网络请求失败，返回离线页面
+        return caches.match(OFFLINE_PAGE);
+      });
     })
   );
 });
