@@ -1,5 +1,4 @@
 const CACHE_NAME = 'app-cache-v1';
-const CACHE_EXPIRY_TIME = 3 * 24 * 60 * 60 * 1000; // 3天（毫秒）
 const OFFLINE_PAGE = './index.html'; // 离线时加载的页面
 
 // 安装事件：缓存必要的文件
@@ -17,7 +16,7 @@ self.addEventListener('install', (event) => {
   self.skipWaiting(); // 立即激活
 });
 
-// 激活事件：清理过期的缓存
+// 激活事件：清理旧缓存
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
@@ -36,19 +35,27 @@ self.addEventListener('activate', (event) => {
 
 // 拦截网络请求
 self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      // 优先返回缓存内容
-      if (cachedResponse) {
-        return cachedResponse;
-      }
-      // 如果缓存没有，尝试从网络获取
-      return fetch(event.request).catch(() => {
-        // 如果网络请求失败，返回离线页面
-        if (event.request.mode === 'navigate') {
-          return caches.match(OFFLINE_PAGE);
+  // 检查请求类型，优先处理导航请求
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      caches.match(event.request).then((cachedResponse) => {
+        // 如果有缓存，直接返回缓存内容
+        if (cachedResponse) {
+          return cachedResponse;
         }
-      });
-    })
-  );
+        // 如果缓存没有，尝试网络获取
+        return fetch(event.request).catch(() => {
+          // 如果网络失败，直接返回离线页面
+          return caches.match(OFFLINE_PAGE);
+        });
+      })
+    );
+  } else {
+    // 非导航请求（如静态资源）
+    event.respondWith(
+      caches.match(event.request).then((cachedResponse) => {
+        return cachedResponse || fetch(event.request);
+      })
+    );
+  }
 });
