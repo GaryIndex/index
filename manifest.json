@@ -4,7 +4,7 @@
   "description": "一个用来计算碎片率的工具",
   "start_url": "/index.html", 
   "display": "standalone",
-  "background_color": "#EDEDED",
+  "background_color": "#0051a8",
   "theme_color": "#EDEDED",
   "icons": [
     {
