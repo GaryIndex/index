@@ -1,5 +1,5 @@
 // 定义缓存名称和缓存过期时间
-const CACHE_NAME = 'app-cache-v1'; // 当前缓存名称
+const CACHE_NAME = 'garyindex-app-v1.1.10'; // 当前缓存名称
 const CACHE_EXPIRY_TIME = 3 * 24 * 60 * 60 * 1000; // 缓存有效期：3天（以毫秒计）
 const OFFLINE_PAGE = './index.html'; // 离线页面
 
