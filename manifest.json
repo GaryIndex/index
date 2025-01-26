@@ -2,7 +2,7 @@
   "name": "碎片率计算器1.1",
   "short_name": "碎片率",
   "description": "一个用来计算碎片率的工具",
-  "start_url": "./", 
+  "start_url": "./index.html", 
   "display": "standalone",
   "background_color": "#0051a8",
   "theme_color": "#EDEDED",
