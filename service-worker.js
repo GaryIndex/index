@@ -1,11 +1,11 @@
 // 定义缓存名称和缓存过期时间
 const CACHE_NAME = 'garyindex-app-v1.1.10'; // 当前缓存名称
 const CACHE_EXPIRY_TIME = 3 * 24 * 60 * 60 * 1000; // 缓存有效期：3天（以毫秒计）
-const OFFLINE_PAGE = './index.html'; // 离线页面
+const OFFLINE_PAGE = 'index.html'; // 离线页面
 
 // 需要预缓存的资源列表
 const PRECACHE_URLS = [
-  'index.html',      // 主页面
+  './index.html',      // 主页面
   './manifest.json',   // PWA 配置文件
   './icon.png',        // 图标文件
   './icon-512.png',    // 高分辨率图标
