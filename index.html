@@ -195,6 +195,7 @@
       });
     }
   </script>
+    <script>
   if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js').then((registration) => {
@@ -218,5 +219,6 @@
   // 隐藏内容，直到缓存完成
   document.body.style.display = 'none';
 }
+  </script>
 </body>
 </html>
