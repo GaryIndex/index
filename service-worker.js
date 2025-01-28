@@ -32,7 +32,7 @@ self.addEventListener('activate', (event) => {
   self.clients.claim(); // 确保当前页面受控制
 });
 
-// 拦截所有请求：始终使用缓存
+// 拦截请求：从缓存加载，缓存丢失时才进行网络加载
 self.addEventListener('fetch', (event) => {
   const { request } = event;
 
@@ -41,21 +41,24 @@ self.addEventListener('fetch', (event) => {
 
   event.respondWith(
     caches.match(request).then((cachedResponse) => {
-      // 如果有缓存，直接返回
       if (cachedResponse) {
+        // 如果缓存命中，直接返回
         return cachedResponse;
       }
 
-      // 如果没有缓存，尝试从网络获取并缓存
+      // 如果缓存未命中，从网络加载并缓存
       return fetch(request)
         .then((networkResponse) => {
-          return caches.open(CACHE_NAME).then((cache) => {
-            cache.put(request, networkResponse.clone()); // 更新缓存
-            return networkResponse;
-          });
+          if (networkResponse.ok) {
+            // 网络请求成功时更新缓存
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(request, networkResponse.clone());
+            });
+          }
+          return networkResponse;
         })
         .catch(() => {
-          // 如果网络失败，返回主页面（兜底）
+          // 如果网络请求失败并且是 HTML 请求，返回主页面作为兜底
           if (request.headers.get('accept').includes('text/html')) {
             return caches.match('./index.html');
           }
