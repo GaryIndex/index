@@ -1,68 +1,58 @@
-const CACHE_NAME = 'garyindex-app-v1.1.10'; // 缓存名称
+const CACHE_NAME = 'garyindex-app-v1.1.10';
 const PRECACHE_URLS = [
-  './index.html',       // 主页面
-  './manifest.json',    // PWA 配置文件
-  './service-worker.js',// Service Worker 文件
-  './github.svg',       // GitHub 图标
+  './index.html',      // 主页面
+  './manifest.json',   // PWA 配置文件
+  './service-worker.js', // 当前 Service Worker 文件
+  './github.svg',      // 图标文件
 ];
 
-// 安装阶段：缓存所有静态资源
+// 安装阶段：缓存所有指定的文件
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(PRECACHE_URLS); // 缓存资源
+      return cache.addAll(PRECACHE_URLS);
     })
   );
-  self.skipWaiting(); // 安装完成后立即激活
+  self.skipWaiting(); // 立即激活新的 Service Worker
 });
 
-// 激活阶段：清理旧缓存
+// 激活阶段：清理旧的缓存
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((cacheNames) =>
-      Promise.all(
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
         cacheNames.map((cacheName) => {
           if (cacheName !== CACHE_NAME) {
             return caches.delete(cacheName); // 删除旧缓存
           }
         })
-      )
-    )
+      );
+    })
   );
-  self.clients.claim(); // 确保当前页面受控制
+  self.clients.claim(); // 确保新的 Service Worker 控制页面
 });
 
-// 拦截请求：从缓存加载，缓存丢失时才进行网络加载
+// 拦截所有请求并返回缓存内容
 self.addEventListener('fetch', (event) => {
-  const { request } = event;
-
-  // 只处理 GET 请求
-  if (request.method !== 'GET') return;
-
   event.respondWith(
-    caches.match(request).then((cachedResponse) => {
+    caches.match(event.request).then((cachedResponse) => {
       if (cachedResponse) {
         // 如果缓存命中，直接返回
         return cachedResponse;
       }
 
-      // 如果缓存未命中，从网络加载并缓存
-      return fetch(request)
-        .then((networkResponse) => {
-          if (networkResponse.ok) {
-            // 网络请求成功时更新缓存
-            caches.open(CACHE_NAME).then((cache) => {
-              cache.put(request, networkResponse.clone());
-            });
-          }
+      // 如果缓存未命中，尝试从网络加载并缓存
+      return fetch(event.request).then((networkResponse) => {
+        return caches.open(CACHE_NAME).then((cache) => {
+          cache.put(event.request, networkResponse.clone());
           return networkResponse;
-        })
-        .catch(() => {
-          // 如果网络请求失败并且是 HTML 请求，返回主页面作为兜底
-          if (request.headers.get('accept').includes('text/html')) {
-            return caches.match('./index.html');
-          }
         });
+      }).catch(() => {
+        // 如果网络请求失败，返回离线页面（如 index.html）
+        if (event.request.mode === 'navigate') {
+          return caches.match('./index.html');
+        }
+      });
     })
   );
 });
